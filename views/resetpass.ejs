@@ -1,0 +1,21 @@
+<%- include("./Partials/head.ejs") %>
+<h1> Reset Password </h1>
+<form action="resetPassword" method="post">
+    <div class="mb-3">
+        <label for="oldpassword" class="form-label">Old Password</label>
+        <input type="password" class="form-control" id="oldpassword" name="oldpassword">
+      </div>
+      <div class="mb-3">
+        <label for="newpassword" class="form-label">New Password</label>
+        <input type="password" class="form-control" id="newpassword" name="newpassword">
+      </div>
+      <div class="mb-3">
+        <p>Please enter you new Password again</p>
+      </div>
+      <div class="mb-3">
+        <label for="newpassword1" class="form-label">New Password</label>
+        <input type="password" class="form-control" id="newpassword1" name="newpassword1">
+      </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      
+</form>

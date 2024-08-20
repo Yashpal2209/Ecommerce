@@ -1,0 +1,44 @@
+<%- include("./Partials/head.ejs") %>
+<h1> Forget Password </h1>
+<form action="/forgetPassword" method="post">
+    <div class="mb-3" id="div">
+      <label for="email" class="form-label">Email address</label>
+      <input type="email" class="form-control" id="email" name="email">
+    </div>
+    <button type="submit" class="btn btn-primary" id="Forget">Submit</button>
+</form>
+<!-- <script>
+    let div=document.getElementById("div");
+    document.getElementById('Forget').addEventListener('click', function() {
+        // var email = document.getElementById('email').value;
+        // if(email == '') {
+        //     alert('Please enter your email');
+        //     return false;
+        // }
+        // let no=Date.now();
+
+        // fetch("/forgetPassword",{
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify({ email: email, key: no })
+        // }).then((response)=>{
+        //     // const input=document.createElement("input");
+        //     // input.className="form-control";
+        //     // input.type="number";
+        //     // const button=document.createElement("button");
+        //     // button.className="btn btn-primary";
+        //     // button.innerText="Validate";
+        //     // button.addEventListener("click",()=>{
+        //     //     if(input.value===no){
+        //     //         console.log("okk now you can make new password");
+        //     //     }
+        //     //     console.log("wrong no");
+        //     // })
+        //     console.log("its response");
+        // }
+        // );
+    });
+</script> -->
+<%- include("./Partials/footer.ejs") %> 

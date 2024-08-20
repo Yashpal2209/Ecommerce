@@ -1,0 +1,41 @@
+<%- include("./Partials/head.ejs") %>
+<h1> Products</h1>
+<div class="products">
+    <% if (locals.result) { %>
+        <% locals.result.forEach((res)=>{%>
+            <div id="<%= res._id %>" class="card" style="width: 18rem; margin-bottom: 15px;">
+                <img src="<%= res.imageURL %>" class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title"><%= res.name %></h5>
+                    <p class="card-text"><%= res.description%></p>
+                    <p class="card-text">Price: <%= res.price %></p>
+                    <p class="card-text">Quantity: <%= res.quantity %></p>
+                    <button class="btn btn-primary cart" id="<%= res._id %>">Add to Cart</button>
+                    <button class="btn btn-primary viewDetails" data-id="<%= res._id %>">View Details</button>
+                </div>
+            </div>
+        <% }); %>
+    <% } %>
+</div>
+
+<div id="pagination">
+    <% for (let index = 1; index <= locals.totalPages; index++) { %>
+        <% if (index==locals.currentPage) { %>
+          <button disabled><%= index %></button>
+        <% } else { %>
+            <button class="page" id="<%= index %>"><%= index %></button>
+        <% } %>
+    <% } %>
+</div>
+<div id="detailsModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <img id="modal-image" class="modal-img" alt="Product Image">
+        <h5 id="modal-title"></h5>
+        <p id="modal-description"></p>
+        <p id="modal-price"></p>
+        <p id="modal-quantity"></p>
+    </div>
+</div>
+
+<%- include("./Partials/footer.ejs") %> 

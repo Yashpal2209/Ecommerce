@@ -1,0 +1,67 @@
+<%- include("./Partials/head.ejs") %>
+<h1>Your Cart</h1>
+<% if (locals.products) { %>
+    <div class="Cartproduct">
+        <% locals.products.forEach((product)=>{%>
+            <div class="card" id="<%= product._id %>" style="width: 18rem; margin-bottom: 15px;" >
+                <img src="<%= product.imageURL %>">
+                <h5><%= product.name %></h5>
+                <p>Description: <%= product.description %></p>
+                <p>Quantity: <%= product.quantity %></p>
+                <p>Price: <%= product.price %></p>
+                <!-- <h5>BY: </h5> -->
+                 <div style="display: flex; flex-direction: row; ;">
+                    <button class="btn btn-primary placeOrder" style="margin-left: 10px;" id="<%= product._id %>">Order</button>
+                    <button class="btn btn-danger removeCart" style="margin-left: 100px;" id="<%= product._id %>">Remove</button>
+                </div>
+            </div>
+            <!-- <form id="cartForm" action="" method="POST">
+                <input type="hidden" id="productId" value=" %>">
+                <input type="number" id="cartQuantity" placeholder="Enter Quantity" min="1">
+                <button type="submit">Place Order</button>
+            </form> -->
+        <% }) %>
+    </div>
+    
+    
+<% }%>
+<%if(locals.products.length==0){ %>
+    <h1>Oops!! nothing in your cart</h1>
+<% } %>
+<script>
+    const removeCart=document.getElementsByClassName("removeCart");
+    for(let i=0;i<removeCart.length;i++){
+        removeCart[i].addEventListener("click",async (event)=>{
+            await fetch("/cart/remove",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        id: event.target.id
+                    })
+                }
+            ).then((response)=>{
+                //deletefrom UI
+                document.getElementById(event.target.id).remove();
+                return response.json();
+                // return response.json()
+            }).then((data)=>{
+                alert(data.message);
+                // alert(data);
+            }).catch((error)=>{
+                alert("Error: "+error);
+            });
+        })
+    };
+
+    const placeOrder=document.getElementsByClassName("placeOrder");
+    for(let i=0;i<placeOrder.length;i++){
+        placeOrder[i].addEventListener("click",async (event)=>{
+            window.location.href=`/order/place/?product=${event.target.id}`;
+        })
+    };
+
+</script>
+<%- include("./Partials/footer.ejs") %>

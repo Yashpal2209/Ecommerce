@@ -1,0 +1,33 @@
+<%- include("./Partials/head.ejs") %>
+
+<form action="createProduct" method="POST" enctype="multipart/form-data">
+    <div class="mb-3">
+      <label for="productImage" class="form-label">Product Image</label>
+      <input type="file" class="form-control" id="productImage" name="productImage">
+    </div>
+    <div class="mb-3">
+      <label for="productName" class="form-label">Product Name</label>
+      <input type="text" class="form-control" id="productName" name="productName">
+    </div>
+    <div class="mb-3">
+      <label for="quantity" class="form-label">Quantity</label>
+      <input type="number" class="form-control" id="quantity" name="quantity" >
+    </div>
+    <div class="mb-3">
+      <label for="price" class="form-label">Price</label>
+      <input type="number" class="form-control" id="price" name="price" >
+    </div>
+    <div class="mb-3">
+      <label for="seller" class="form-label">Seller Name</label>
+      <input type="text" class="form-control" id="seller" name="seller" >
+    </div>
+    <div class="mb-3">
+      <label for="description" class="form-label">Product Description</label>
+      <textarea class="form-control" id="description" name="description" rows="3" ></textarea>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+  
+
+<%- include("./Partials/footer.ejs") %> 
