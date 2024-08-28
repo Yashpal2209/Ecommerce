@@ -1,14 +1,30 @@
 .card{
     border-width: 5px;
-
+    background-color: #e7eaec;
 }
 
+.navbar {
+    position: fixed;
+    width: 100%;
+    top: 0; 
+    left: 0;
+    z-index: 1000; 
+    background-color: white; 
+    height: 60px;
+}
+
+body {
+    padding-top: 60px; 
+}
 
 .products{
-    display: flex;
-    flex-wrap: wrap;
     justify-content: space-around;
     padding: 10px;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 15px;
+    max-width: 100%;
+    overflow-x: auto;
 }
 
 h1{
@@ -28,11 +44,11 @@ h1{
     background-color: rgba(0, 0, 0, 0.4); 
 }
 
-
 .modal-content {
+    color: black;
     align-items: center;
-    background-color: #ebeff1;
-    margin: 1% auto;
+    background-color: #7aa7bd;
+    margin: 8% auto;
     padding: 20px;
     border: 5px solid black;
     width: 50%;
@@ -42,7 +58,7 @@ h1{
 .close {
     margin-left: 80%;
     color: #aa0c0c;
-    float:right;
+    float: right;
     font-size: 28px;
     font-weight: bold;
 }
@@ -69,9 +85,9 @@ body.modal-active .card {
     opacity: 0.5;
 }
 
-#modal-image{
-    height:250px;
-}
+/* #modal-image{
+    height: 250px;
+} */
 
 img{
     height: 200px;
@@ -81,14 +97,19 @@ img{
     display: flex;
     justify-content: center;
     margin-top: 20px;
-    /* to give gap bw align-items; */
-    gap: 10px;
+    gap: 10px; /* Gap between pagination items */
 }
 
 .Cartproduct{
     display: flex;
     flex-direction: row;
-    float: left;
+    justify-content: space-around;
+    padding: 10px;
+    flex-wrap: wrap;
+    gap: 15px;
+    width: 100%;
+    overflow-x: hidden;
+    margin-bottom: 50px;
 }
 
 .order-status {
@@ -146,4 +167,192 @@ img{
 
 .completed .step-label {
     color: #28a745; /* Green for completed labels */
+}
+
+.forms{
+    margin: auto 800px auto 20px;
+    padding: 30px 25px 35px 25px;
+}
+
+.bgforms,
+.home,
+.carts,
+.orders,
+.createproduct {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: auto;
+    width: 100%;
+    min-height: 100%;
+}
+
+.bgforms {
+    background-image: url('https://img.freepik.com/premium-photo/shopping-cart-yellow-box-blue-background_1174990-35779.jpg?ga=GA1.2.1712318188.1724608355&semt=ais_hybrid');
+}
+
+.home {
+    background-image: url('https://img.freepik.com/premium-photo/black-friday-deals-online-website-with-flashing-discounts_1298745-3716.jpg?ga=GA1.1.1712318188.1724608355&semt=ais_hybrid');
+}
+
+.carts {
+    background-image: url("https://img.freepik.com/premium-photo/industrial-blank-glass-sign-board-shopping-bag-sale-tags-shopping-carts-confetti-with-shopping-bag_655090-3534687.jpg?ga=GA1.2.1712318188.1724608355&semt=ais_hybrid");
+    color: #0e0d0d;
+}
+
+.orders {
+    background-image: url('https://img.freepik.com/premium-photo/shopping-bags-inside-cart-empty-orange-wall-retail-concept_1164591-20954.jpg?ga=GA1.1.1712318188.1724608355&semt=ais_hybrid');
+}
+
+.createproduct {
+    background-image: url('https://img.freepik.com/premium-photo/colorful-shopping-bags-placed-green-plant-wooden-surface-against-grey-wall-symbolizing-retail-shopping_29120-34909.jpg?ga=GA1.1.1712318188.1724608355&semt=ais_hybrid');
+}
+
+.cartBottom {
+    color: white;
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 10px 20px;
+    box-sizing: border-box;
+    position: fixed;
+    bottom: 0;
+    background-color: black;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.totalamount {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.buyall {
+    margin-top: 5px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+    border-radius: 5px;
+}
+
+.buyall:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+h4 {
+    align-self: center;
+}
+
+p {
+    font-size: larger;
+    font-weight: 500;
+}
+
+/* navbar styles */
+.navbar-collapse {
+    background-color: black;
+}
+
+.navbar-nav .nav-item .nav-link {
+    color: white;
+}
+
+.navbar-nav .dropdown-menu {
+    background-color: black;
+    border: none;
+    width: 100%;
+}
+
+.navbar-nav .dropdown-menu .dropdown-item {
+    color: white;
+}
+
+.navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Media Queries for Responsive Design */
+@media (max-width: 768px) {
+    .products {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .modal-content {
+        width: 80%;
+        border-radius: 20px;
+    }
+
+    .forms {
+        margin: auto;
+        padding: 20px 15px 25px 15px;
+    }
+
+    .cartBottom {
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px 20px;
+    }
+
+    .navbar {
+        height: auto;
+    }
+
+    .totalamount {
+        font-size: 1em;
+    }
+
+    .buyall {
+        font-size: 0.9em;
+    }
+
+    #pagination {
+        gap: 5px;
+    }
+
+    .bgforms,
+    .home,
+    .carts,
+    .orders,
+    .createproduct {
+        min-height: auto;
+    }
+}
+
+@media (max-width: 576px) {
+    .products {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .forms {
+        margin: auto;
+        padding: 15px 10px 20px 10px;
+    }
+
+    .cartBottom {
+        flex-direction: column;
+        gap: 5px;
+        padding: 10px 15px;
+    }
+
+    .totalamount {
+        font-size: 0.9em;
+    }
+
+    .buyall {
+        font-size: 0.8em;
+    }
+    .admin-nav{
+        margin-left: 0 !important;
+    }
 }

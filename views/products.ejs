@@ -1,5 +1,8 @@
 <%- include("./Partials/head.ejs") %>
-
+<div class="createproduct">
+<div class="forms">
+  <h1>Create Product</h1>
+  <p>Please fill out this form to create a new product.</p>
 <form action="createProduct" method="POST" enctype="multipart/form-data">
     <div class="mb-3">
       <label for="productImage" class="form-label">Product Image</label>
@@ -18,16 +21,12 @@
       <input type="number" class="form-control" id="price" name="price" >
     </div>
     <div class="mb-3">
-      <label for="seller" class="form-label">Seller Name</label>
-      <input type="text" class="form-control" id="seller" name="seller" >
-    </div>
-    <div class="mb-3">
       <label for="description" class="form-label">Product Description</label>
       <textarea class="form-control" id="description" name="description" rows="3" ></textarea>
     </div>
     
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
-  
-
+</div>
+</div>
 <%- include("./Partials/footer.ejs") %> 

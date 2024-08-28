@@ -2,33 +2,55 @@ const User=require("../model/user");
 const jwt=require("jsonwebtoken")
 const cookieParser=require("cookie-parser");
 const nodemailer = require("nodemailer");
+const connectionrequest=require("../mysqlconnect");
+const crypto=require("crypto")
+const bcrypt=require("bcrypt");
+require('dotenv').config();
 
-// Create a transporter using Gmail's SMTP server
 let transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-        user: "yashfatehgarh2017@gmail.com", // Replace with your Gmail email
-        pass: "qifi ytbt zmhh dwsm"   // Replace with your Gmail password
+        user: process.env.NODEMAILER_USERNAME, 
+        pass:  process.env.NODEMAILER_PASSWORD
     }
 });
 
+async function hashPassword(password) {
+    const saltRounds = 10; // You can adjust the salt rounds, higher means more security but slower performance
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    return hashedPassword;
+}
+
+async function comparePassword(plainPassword, hashedPassword) {
+    const isMatch = await bcrypt.compare(plainPassword, hashedPassword);
+    return isMatch;
+}
   
 async function createUser(req,res){
     try{
-        const user=await User.create({
-            name:req.body.fullName,
-            email:req.body.email,
-            password:req.body.password,
-            phone:req.body.phoneNumber,
-            address:req.body.address,
-        }).then(async ()=>{
+        const sqlconnection =await connectionrequest();
+        const q=`INSERT INTO users (name,email,password,phone,address) VALUES (?,?,?,?,?);`;
+        const hashedPassword=await hashPassword(req.body.password);
+        const values=[req.body.fullName, req.body.email, hashedPassword, parseInt(req.body.phoneNumber), req.body.address];    
+        await new Promise(sqlconnection.execute(q,values,async (err, result) => {
+            if (err) {
+                console.error('Error creating user:', err);
+                return res.render("home", { error: err.message });
+            }
+            console.log("created");
+            const verifyToken = crypto.randomBytes(32).toString('hex');
+            const results=await sqlconnection.promise().query(`SELECT * FROM users where email=?`,[req.body.email]);
+            console.log(results[0][0].id);
+            await sqlconnection.promise().query(`INSERT INTO verifyUsers(userId,token) Values(?,?)`,[results[0][0].id,verifyToken]);
+            const link=`http://localhost:3000/verify/?token=${verifyToken}&id=${results[0][0].id}`;
             const message = {
                 from: "yashfatehgarh2017@gmail.com",
                 to: req.body.email,
-                subject: "Sending Email using Nodemailer with Gmail",
-                text: "You are registered Successfully."
+                subject: "Verify Your Identity",
+                text: "You are registered Successfully.",
+                html: `<p>You are registered Successfully. Click the following link to verify your identity:</p><a href="${link}">Verify Identity</a>`
             };
-            
+                    
             await transporter.sendMail(message, function(err, info) {
                 if (err) {
                     console.log("Error occurred: ", err.message);
@@ -36,8 +58,12 @@ async function createUser(req,res){
                     console.log("Email sent: " + info.response);
                 }
             });
-            console.log('User created successfully');
-        });
+            
+            console.log("done");
+        })
+        );
+        sqlconnection.end();
+        
     }
     catch(error){
         console.log('Error creating user:', error);
@@ -53,93 +79,161 @@ async function createUser(req,res){
 }
 
 async function verifyUser(req,res){
-    const user=await User.findOne({email:req.body.email});
-
-    if(!user){
+    const sqlconnection =await connectionrequest();
+    const q=`SELECT * FROM users WHERE email=?`;
+    const values=[req.body.email];
+    const [results]=await sqlconnection.promise().query(q,values);
+    if(results.length==0){
+        return res.render("signin",{
+            error:"Invalid Email"
+        });
+    }
+    const isMatch = await comparePassword(req.body.password, results[0].password);
+    if(!isMatch){
         return res.redirect("/");
     }
-
-    if(user.password!==req.body.password){
-        return res.redirect("/");
+    if(!results[0].isVerified){
+        return res.render("home",{
+            error:"Please verify your email first"
+        })
     }
-    let id=user._id;
     const payload={
-        id:id,
-        name:user.name,
-        email:user.email,
-        phone:user.phone,
-        address:user.address,
-    };
-    const id1=jwt.sign(payload,"mysecretkey");
+        id:results[0].id,
+        name:results[0].name,
+        email:results[0].email,
+        phone:results[0].phone,
+        address:results[0].address,
+        role:results[0].role,
+    }
+    const id1=await jwt.sign(payload,"mysecretkey",{expiresIn:'1h'});
     res.cookie("token",id1);
-    res.redirect("/");
+    sqlconnection.end();
+    return res.redirect("/");
 }
 
 async function logout(req,res){
     res.clearCookie("token");
-    res.redirect("/");
-}
-
-async function forgetPasssword(req,res){
-    const user=await User.findOne({email:req.body.email});
-    if(!user){
-        return res.redirect("/");
-    }
-    let newPassword=Math.floor(1000 + Math.random() * 9000);
-    user.password=newPassword;
-    await user.save();
-    const message = {
-        from: "yashfatehgarh2017@gmail.com",
-        to: req.body.email,
-        subject: "Sending Email using Nodemailer with Gmail",
-        text: "Your new password is: "+newPassword
-    };
-    
-    await transporter.sendMail(message, function(err, info) {
-        if (err) {
-            console.log("Error occurred: ", err.message);
-        } else {
-            console.log("Email sent: " + info.response);
-        }
-    });
     return res.redirect("/");
 }
 
-async function resetPassword(req,res){
-    const email=req.user.email;
-    const user=await User.findOne({email:email});
-    console.log(user);
-    if(!user){
-        console.log("hii");
-        return res.redirect("/");
-    }
-    if(user.password!==req.body.oldpassword){
-        return res.render("resetpass",{
-            user:req.user,
-            error:"Old password is incorrect"
+async function forgetPasssword(req,res){
+    const sqlconnection =await connectionrequest();
+    const q=`SELECT * FROM users WHERE email=?`;
+    const values=[req.body.email];
+
+    await new Promise((resolve,reject)=>{ sqlconnection.query(q,values,async (err, results) => {
+        if(err){
+            reject("Invalid Email");
+            return res.render("home",{
+                error:"Invalid email"
+            });
+        }
+        // console.log(results[0].id);
+        // let newPassword=Math.floor(1000 + Math.random() * 9000);
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const [result]=await sqlconnection.promise().query(`SELECT * FROM resetPassword where userId=?`,[results[0].id]);
+        
+        if(result.length==0){
+            await sqlconnection.promise().query(`INSERT INTO resetPassword(userId,token,expiresAt) Values(?,?,?)`,[results[0].id,resetToken,Date.now()+360000]);
+        }else{
+            await sqlconnection.promise().query(`UPDATE resetPassword SET token=?, expiresAt=? WHERE userId=?`,[resetToken,Date.now()+360000,results[0].id]);
+        }
+        // await sqlconnection.promise().query(`INSERT INTO resetPassword(userId,token,expiresAt) Values(?,?,?)`,[results[0].id,resetToken,Date.now()+360000]);
+
+        const resetLink=`http://localhost:3000/reset/?token=${resetToken}&id=${results[0].id}`;
+
+        // await new Promise((resolve,reject)=>{sqlconnection.query(`UPDATE users SET password=? WHERE email=?`,[newPassword,req.body.email],(err,results) => {
+        //     if(err){
+        //         console.error('Error updating password:', err);
+        //         reject("Failed to update password");
+        //     }
+        //     resolve("Password updated successfully");
+        // })
+        // })
+
+        const message = {
+            from: "yashfatehgarh2017@gmail.com",
+            to: req.body.email,
+            subject: "Sending Email using Nodemailer with Gmail",
+            text: `You requested a password reset. Click the following link to reset your password: ${resetLink}`,
+            html: `<p>You requested a password reset. Click the following link to reset your password:</p><a href="${resetLink}">Reset Password</a>`
+        };
+        
+        await transporter.sendMail(message, function(err, info) {
+            if (err) {
+                console.log("Error occurred: ", err.message);
+            } else {
+                console.log("Email sent: " + info.response);
+            }
         });
-    }
+        return res.redirect("/");
+        
+    })}
+    )
+}
+
+async function resetPassword(req,res){
+    const sqlconnection =await connectionrequest();
+    const userId=req.body.userId;
     if(req.body.newpassword!==req.body.newpassword1){
         return res.render("resetpass",{
             user:req.user,
-            error:"New password is not same in both fields"
+            error:"Passwords do not match"
         });
     }
+    const hashedPassword=await hashPassword(req.body.newpassword);
+    await sqlconnection.promise().query(`UPDATE users SET password=? WHERE id=?`,[hashedPassword,userId]);
+    await sqlconnection.promise().query(`DELETE FROM resetPassword WHERE userId=?`,[req.query.token,userId]);
+    sqlconnection.end();
+    res.redirect("/signin");
+};
+
+async function showresetform(req,res){
+    const token=req.query.token;
+    const userId=req.query.id;
+    const sqlconnection = await connectionrequest();
+    const [resetPassword]=await sqlconnection.promise().query(`SELECT * FROM resetPassword WHERE token=? AND userId=?`,[token,userId]);
     
-    if(user.oldpassword===req.body.newpassword){
-        return res.render("resetpass",{
-            user:req.user,
-            error:"Old password and new password are same"
-        });
+    if(resetPassword.length==0){
+        console.log("hii");
+        return res.render("home",{
+            error:"PLease sign in or signup first"
+        })
     }
 
-    user.password=req.body.newpassword;
-    await user.save();
-    return res.render("resetpass",{
-        user:req.user,
-        message:"Password Reset Successfully"
+    if(Number(resetPassword.expiresAt)<Date.now()){
+        res.render("home",{
+            error:"Please sign first"
+        })
+    }
+
+    res.render("resetpass",{
+        userId:userId,
     });
-};
+
+
+}
+
+async function verifyEmail(req,res){
+    const sqlconnection = await connectionrequest();
+    const q=`SELECT * FROM verifyUsers WHERE token=? and userId=?`;
+    const values=[req.query.token,req.query.id];
+    console.log(values);
+    const [results]=await sqlconnection.promise().query(q,values);
+    if(results.length==0){
+        return res.render("home",{
+            error:"Invalid Link"
+        });
+    }
+    await sqlconnection.promise().query(`UPDATE users SET isVerified=true WHERE id=?`,[req.query.id]);
+    await sqlconnection.promise().query(`DELETE FROM verifyUsers where userId=?`,[req.query.id]);
+    sqlconnection.end();
+    return res.render("home",{
+        message:"Email verified successfully.You can login now"
+    })
+ 
+}
+
 
 module.exports={
     createUser,
@@ -147,4 +241,6 @@ module.exports={
     logout,
     forgetPasssword,
     resetPassword,
+    showresetform,
+    verifyEmail
 }

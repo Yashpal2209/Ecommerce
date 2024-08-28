@@ -2,18 +2,15 @@ const express=require("express");
 
 const router=express.Router();
 
-const {createUser,verifyUser,logout,forgetPasssword,resetPassword}=require("../controllers/user");
+const {createUser,verifyUser,logout,forgetPasssword,resetPassword,showresetform,verifyEmail}=require("../controllers/user");
 
-const {checkForAuth}=require("../middleware/checkAuth");
+// const {checkForAuth}=require("../middleware/checkAuth");
 
 router.route("/signin")
 .get((req,res)=>{
     res.render("signin");
 })
 .post(verifyUser);
-
-
-console.log("hii");
 
 router.route("/signup")
 .get((req,res)=>{
@@ -36,13 +33,20 @@ router.route("/forgetPassword")
     forgetPasssword
 );
 
-router.route("/resetPassword")
-.get(checkForAuth,(req,res)=>{
-    res.render("resetpass",{
-        user:req.user,
-    });
-})
-.post(checkForAuth,resetPassword);
+// router.route("/resetPassword")
+// .get((req,res)=>{
+//     res.render("resetpass",{
+//         user:req.user,
+//     });
+// })
+// .post(resetPassword);
+
+router.route("/reset")
+.get(showresetform)
+.post(resetPassword);
+
+router.route("/verify")
+.get(verifyEmail);
 
 
 module.exports=router;

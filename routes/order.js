@@ -14,9 +14,9 @@ router.use(express.urlencoded({extended:true}));
 router.route("")
 .get(checkForAuth,myOrders);
 
-router.route("/place")
-.get(checkForAuth,showOrder)
-.post(checkForAuth,createOrder);
+// router.route("/place")
+// .get(checkForAuth,showOrder)
+// .post(checkForAuth,createOrder);
 
 
 module.exports=router;

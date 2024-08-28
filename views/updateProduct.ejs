@@ -1,0 +1,28 @@
+<%- include("./Partials/head.ejs") %>
+
+<form action="/admin" method="POST">
+  <div class="mb-3">
+    <img src="<%= locals.product.imageURL %>" style="height: 150px; border: 2px black solid;">
+  </div>  
+  <input type="hidden" value="<%= locals.product.id %>" name="id">
+    <div class="mb-3">
+      <label for="productName" class="form-label">Product Name</label>
+      <input type="text" class="form-control" id="productName" name="productName" value="<%= locals.product.name %>">
+    </div>
+    <div class="mb-3">
+      <label for="quantity" class="form-label">Quantity</label>
+      <input type="number" class="form-control" id="quantity" name="quantity" value="<%= locals.product.quantity %>">
+    </div>
+    <div class="mb-3">
+      <label for="price" class="form-label">Price</label>
+      <input type="number" class="form-control" id="price" name="price" value="<%= locals.product.price %>">
+    </div>
+    <div class="mb-3">
+      <label for="description" class="form-label">Product Description</label>
+      <textarea class="form-control" id="description" name="description" rows="3" ><%= locals.product.description %></textarea>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Update</button>
+  </form>
+
+<%- include("./Partials/footer.ejs") %>

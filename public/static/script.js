@@ -1,3 +1,17 @@
+function setMinHeight() {
+    const elements = document.querySelectorAll('.bgforms, .home, .carts, .orders, .createproduct');
+    elements.forEach(element => {
+        element.style.minHeight = `${window.innerHeight}px`;
+    });
+}
+
+// Set the height on initial load
+setMinHeight();
+
+// Adjust the height when the window is resized
+window.addEventListener('resize', setMinHeight);
+
+
 document.addEventListener("DOMContentLoaded", function() {
     const modal = document.getElementById("detailsModal");
     const closeModal = document.querySelector(".close");

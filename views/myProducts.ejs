@@ -1,0 +1,119 @@
+<%- include("./Partials/head.ejs") %>
+<div class="home">
+<h1>Your Products</h1>
+
+<div class="products">
+    <% if (locals.products) { %>
+        <% locals.products.forEach((res)=>{%>
+            <div id="<%= res.id %>" class="card" style="width: 20rem; margin-bottom: 15px;">
+                <img src="<%= res.imageURL %>" class="card-img-top">
+                <div class="card-body">
+                    Name:<input class="card-title" value="<%= res.name %>">Description:
+                    <br>
+                    <textarea class="card-text"><%= res.description%></textarea>
+                    <br>
+                    Price:<input class="card-price" value="<%= res.price %>"> 
+                    Quantity: <input class="card-quantity" value="<%= res.quantity %>">
+                    <button class="btn btn-primary update" id="<%= res.id %>">Update</button>
+                    <% if(res.available){ %>
+                        <button class="btn btn-primary remove" id="<%= res.id %>" style="display:inline-block;">Remove</button>
+                        <button class="btn btn-primary avail" id="<%= res.id %>" style="display:none;">Available it</button>
+                    <% } else{ %>
+                        <button class="btn btn-primary remove" id="<%= res.id %>" style="display:none;">Remove</button>
+                        <button class="btn btn-primary avail" id="<%= res.id %>" style="display:inline-block;">Available it</button>
+                    <% } %>
+                    
+                    
+                </div>
+            </div>
+        <% }); %>
+    <% } %>
+</div>
+</div>
+<script>
+    const updatebutton=document.getElementsByClassName("update");
+    const deletebutton=document.getElementsByClassName("remove");
+    const availbutton=document.getElementsByClassName("avail");
+    console.log(updatebutton);
+    for(let i=0; i<updatebutton.length; i++){
+        updatebutton[i].addEventListener('click', async function() {
+            const id=this.id;
+            const name=this.parentNode.querySelector(".card-title").value;
+            const desc=this.parentNode.querySelector(".card-text").value;
+            const price=this.parentNode.querySelector(".card-price").value;
+            const quantity=this.parentNode.querySelector(".card-quantity").value;
+            console.log(name," ",desc," ",price," ",desc);
+            await fetch("/admin",{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id:id,
+                    name:name,
+                    description:desc,
+                    price:price,
+                    quantity:quantity
+                })
+            });
+
+        });
+    }
+    console.log(deletebutton);
+    for(let i=0; i<deletebutton.length; i++){
+        deletebutton[i].addEventListener('click', async function() {
+            const id = this.id;
+            const response=await fetch('/admin', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body:JSON.stringify({
+                        id:id,
+                        avail:false
+                    })
+                }
+            );
+            if (response.ok) {
+                this.style.display = 'none';
+                console.log(this.closest(".card").querySelector(".avail"));
+                const availBtn = this.closest('.card').querySelector('.avail');
+                availBtn.style.display = 'inline-block';
+            } else {
+                alert('Failed to update product status');
+            }
+            // this.parentElement.parentElement.remove();
+            alert('Product updated successfully');
+            
+        });
+    }
+    for(let i=0; i<availbutton.length; i++){
+        availbutton[i].addEventListener('click', async function() {
+            const id = this.id;
+            const response=await fetch('/admin', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body:JSON.stringify({
+                        id:id,
+                        avail:true
+                    })
+                }
+            );
+            if (response.ok) {
+                this.style.display = 'none';
+                const removeBtn = this.closest('.card').querySelector('.remove');
+                removeBtn.style.display = 'inline-block';
+            } else {
+                alert('Failed to update product status');
+            }
+            // this.parentElement.parentElement.remove();
+            alert('Product updated successfully');
+            
+        });
+    }
+
+</script>
+
+<%- include("./Partials/footer.ejs") %>

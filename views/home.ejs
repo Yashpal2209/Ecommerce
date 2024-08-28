@@ -1,17 +1,18 @@
 <%- include("./Partials/head.ejs") %>
+<div class="home">
 <h1> Products</h1>
 <div class="products">
     <% if (locals.result) { %>
         <% locals.result.forEach((res)=>{%>
-            <div id="<%= res._id %>" class="card" style="width: 18rem; margin-bottom: 15px;">
+            <div id="<%= res.id %>" class="card" style="width: 18rem; margin-bottom: 15px;">
                 <img src="<%= res.imageURL %>" class="card-img-top">
                 <div class="card-body">
                     <h5 class="card-title"><%= res.name %></h5>
                     <p class="card-text"><%= res.description%></p>
                     <p class="card-text">Price: <%= res.price %></p>
                     <p class="card-text">Quantity: <%= res.quantity %></p>
-                    <button class="btn btn-primary cart" id="<%= res._id %>">Add to Cart</button>
-                    <button class="btn btn-primary viewDetails" data-id="<%= res._id %>">View Details</button>
+                    <button class="btn btn-primary cart" id="<%= res.id %>">Add to Cart</button>
+                    <button class="btn btn-primary viewDetails" data-id="<%= res.id %>">View Details</button>
                 </div>
             </div>
         <% }); %>
@@ -37,5 +38,5 @@
         <p id="modal-quantity"></p>
     </div>
 </div>
-
+</div>
 <%- include("./Partials/footer.ejs") %> 

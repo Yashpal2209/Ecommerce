@@ -1,29 +1,24 @@
-const User=require("../model/user");
-const jwt=require("jsonwebtoken")
-const cookieParser=require("cookie-parser");
-const Product=require("../controllers/product");
+const connectionrequest=require("../mysqlconnect");
 
-function createProduct(req,res){
-    try{
-        const newProduct=Product.create({
-            title:req.body.title,
-            price:req.body.price,
-            quantity:req.body.quantity,
-            description:req.body.description,
-            image:`/uploads/${file.filename}`,
-            seller:req.user._id,
-        })
-    }catch(error){
-        res.render("home",{
-            user:req.user,
-            error:error.message,
-        });
+async function showAllProducts(limit,offset,seller_id=null){
+    const sqlconnection=await connectionrequest();
+    if(seller_id!=null){
+        const [totalItems]=await sqlconnection.promise().query('SELECT COUNT(*) as count FROM products where available=true and seller_id!=?',[seller_id]);
+        const [products]=await sqlconnection.promise().query(`SELECT * FROM products where available=true and seller_id!=? LIMIT ? OFFSET ? `, [seller_id,limit, offset]);
+        return {
+            totalItems:totalItems,
+            products:products
+        };
     }
-    res.render("home",{
-        user:req.user,
-    });
+    
+    const [totalItems]=await sqlconnection.promise().query('SELECT COUNT(*) as count FROM products where available=true ');
+    const [products]=await sqlconnection.promise().query(`SELECT * FROM products where available=true LIMIT ? OFFSET ? `, [limit, offset]);
+    return {
+        totalItems:totalItems,
+        products:products
+    };
 }
 
 module.exports={
-    createProduct
+    showAllProducts,
 };

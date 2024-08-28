@@ -1,27 +1,29 @@
 <%- include("./Partials/head.ejs") %>
+<div class="orders">
 <h1>My Orders</h1>
+<div class="products">
 <% if (locals.orders) { %>
     <div class="Cartproduct">
         <% locals.orders.forEach((order)=>{ %>
-            <div class="card" id="<%= order._id %>" style="width: 18rem; margin-bottom: 15px;">
-                <img src="<%= order.products[0].product.imageURL %>">
-                <h5><%= order.products[0].product.name %></h5>
-                <p>Description: <%= order.products[0].product.description %></p>
-                <p>Price: <%= order.products[0].product.price %></p>
-                <p>Quantity: <%= order.products[0].quantity %></p>
+            <div class="card" id="<%= order.id %>" style="width: 18rem; margin: 5px;">
+                <img src="<%= order.imageURL %>">
+                <h5><%= order.name %></h5>
+                <p>Description: <%= order.description %></p>
+                <p>Price: <%= order.price %></p>
+                <p>Quantity: <%= order.quantity %></p>
                 <p>Total Amount: <%= order.totalPrice %></p>
                 
                 <div class="order-status">
                     <ul class="progress-tracker">
-                        <li class="step <% if (order.status === 'Pending' || order.status === 'Shipped' || order.status === 'Delivered') { %> completed <% } %>">
+                        <li class="step <% if (order.status === 'pending' || order.status === 'shipped' || order.status === 'delivered') { %> completed <% } %>">
                             <span class="step-marker"><i class="fas fa-check"></i></span>
                             <span class="step-label">Pending</span>
                         </li>
-                        <li class="step <% if (order.status === 'Shipped' || order.status === 'Delivered') { %> completed <% } %>">
+                        <li class="step <% if (order.status === 'shipped' || order.status === 'delivered') { %> completed <% } %>">
                             <span class="step-marker"><i class="fas fa-check"></i></span>
                             <span class="step-label">Shipped</span>
                         </li>
-                        <li class="step <% if (order.status === 'Delivered') { %> completed <% } %>">
+                        <li class="step <% if (order.status === 'delivered') { %> completed <% } %>">
                             <span class="step-marker"><i class="fas fa-check"></i></span>
                             <span class="step-label">Delivered</span>
                         </li>
@@ -33,7 +35,9 @@
     </div>
     
 <% } %>
+</div>
 <%if(locals.orders.length==0){ %>
     <h1>Oops!! You have not ordered anything Yet.....</h1>
 <% } %>
+</div>
 <%- include("./Partials/footer.ejs") %>

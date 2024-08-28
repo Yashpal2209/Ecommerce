@@ -3,13 +3,11 @@ const {checkForAuth}=require("../middleware/checkAuth");
 const cookieParser=require("cookie-parser");
 const multer=require("multer");
 const router=express.Router();
-const path=require("path");
-const {createProduct}=require("../controllers/product");     
-const User=require("../model/user");
-const Product=require("../model/product");
-const jwt=require("jsonwebtoken");
-const {getData}=require("../middleware/getData");
+const path=require("path");   
+const {showAllProducts}=require("../controllers/product");
 
+const jwt=require("jsonwebtoken");
+const connectionrequest=require("../mysqlconnect");
 router.use(cookieParser())
 router.use(express.urlencoded({extended:true}));
 
@@ -25,40 +23,48 @@ const storage=multer.diskStorage({
 
 const upload=multer({storage:storage});
 
-router.route("")
+router.route("/")
 .get(async (req,res)=>{
     const page=parseInt(req.query.page)||1;
-    const limit=parseInt(req.query.limit)||2;
+    const limit=parseInt(req.query.limit)||4;
+    const offset=(page-1)*limit;
     try{
-        const totalItems=await Product.countDocuments();
-        const products=await Product.find({}).skip((page-1)*limit).limit(limit);
-        
+
+        const sqlconnection = await connectionrequest();
+
         const token=req.cookies.token;
-        if(!token){
-            return res.render("home",{
-                result:products,
-                totalItems:totalItems,
-                totalPages:Math.ceil(totalItems/limit),
-                currentPage:page,
-                error:"Please login and sign in first"
+
+        if (!token) {
+            const {totalItems,products}=await showAllProducts(limit,offset);
+            return res.render("home", {
+                result: products,
+                totalItems: totalItems[0].count,
+                totalPages: Math.ceil(totalItems[0].count / limit),
+                currentPage: page,
+                error: "Please login and sign in first"
             });
         }
-        jwt.verify(token,"mysecretkey",async (err,decodedToken)=>{
-            if(err){
-                return res.render("home",{
-                    result:products,
-                    totalItems:totalItems,
-                    totalPages:Math.ceil(totalItems/limit),
-                    currentPage:page,
-                    error:"Invalid Login id"
+    
+        jwt.verify(token, "mysecretkey", async (err, decodedToken) => {
+            
+            if (err) {
+                const {totalItems,products}=await showAllProducts(limit,offset);
+                return res.render("home", {
+                    result: products,
+                    totalItems: totalItems[0].count,
+                    totalPages: Math.ceil(totalItems[0].count / limit),
+                    currentPage: page,
+                    error: "Invalid Login id"
                 });
             }
-            res.render("home",{
-                user:decodedToken,
-                result:products,
-                totalItems:totalItems,
-                totalPages:Math.ceil(totalItems/limit),
-                currentPage:page,
+            const {totalItems,products}=await showAllProducts(limit,offset,decodedToken.id);
+        
+            res.render("home", {
+                user: decodedToken,
+                result: products,
+                totalItems: totalItems[0].count,
+                totalPages: Math.ceil(totalItems[0].count / limit),
+                currentPage: page,
             });
         });
     
@@ -66,8 +72,7 @@ router.route("")
         res.status(500).json({message:error.message});
     }
     
-})
-.post();
+});
 
 router.route("/createProduct")
 .get(checkForAuth,(req,res)=>{
@@ -84,21 +89,34 @@ router.route("/createProduct")
     }
     let decodedToken1={};
     try{
-        await jwt.verify(token,"mysecretkey",(err,decodedToken)=>{
+        await jwt.verify(token,"mysecretkey",async (err,decodedToken)=>{
             if(err){
                 return res.render("home",
                     {error:"Invalid Login id"}
                 );
             }
             decodedToken1=decodedToken;
-            const newProduct=Product.create({
-                name:req.body.productName,
-                price:req.body.price,
-                quantity:req.body.quantity,
-                description:req.body.description,
-                imageURL:`/uploads/${req.file.filename}`,
-                seller:decodedToken.id,
+
+            const sqlconnection=await connectionrequest();
+
+            const sqlquery="INSERT INTO products(imageURL,name,quantity,description,price,seller_id) VALUES(?,?,?,?,?,?)";
+            
+            const values=[`/uploads/${req.file.filename}`,req.body.productName,req.body.quantity,req.body.description,req.body.price,decodedToken.id];
+
+            
+            await new Promise((resolve,reject)=>{
+                sqlconnection.query(sqlquery,values,async(err,results)=>{
+                    if(err){
+                        console.error('Error adding product:', err);
+                        return res.render("home",{
+                            error:"Error adding product"
+                        });
+                    }
+                    res.redirect("/");
+                })
             });
+
+            sqlconnection.end();
         })
     }catch(error){
         return res.render("home",{

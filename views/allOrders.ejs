@@ -1,0 +1,125 @@
+<%- include("./Partials/head.ejs") %>
+<div class="orders">
+    <h1>All Orders</h1>
+    <div class="products">
+    <% if (locals.orders) { %>
+        <div class="Cartproduct">
+            <% locals.orders.forEach((order)=>{ %>
+                <div class="card" id="<%= order.id %>" style="width: 18rem; margin: 5px; padding:5px;">
+                    <img src="<%= order.imageURL %>">
+                    <h4><%= order.product_name %></h4>
+                    <p style="font-size: larger;font-weight:500;"><%= order.description %></p><p></p>
+                    <p style="font-size: larger;font-weight:500;">Price: <%= order.price %></p>
+                    <p style="font-size: larger;font-weight:500;">Quantity: <%= order.quantity %></p>
+                    <p style="font-size: larger;font-weight:500;">Total Amount: <%= order.totalPrice %></p>
+                    <p style="font-size: larger;font-weight:500;">Purchased By: <%= order.buyyer %></p>
+
+                    <div class="order-status">
+                        <ul class="progress-tracker">
+                            <li class="step">
+                                <button class="btn btn-success pending" id="<%= order.order_id %>">
+                                    Pending
+                                </button>
+                            </li>
+                            <li class="step">
+                                <button class="btn <% if (order.status === 'pending') { %>btn-secondary<% } else { %>btn-success<% } %> shipped" id="<%= order.order_id %>">
+                                    Shipped
+                                </button>
+                            </li>
+                            <li class="step">
+                                <button class="btn <% if (order.status === 'delivered') { %>btn-success<% } else { %>btn-secondary<% } %> delivered" id="<%= order.order_id %>">
+                                    Delivered
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    
+                </div>
+            <% }) %>
+        </div>
+        
+    <% } %>
+    </div>
+    <%if(locals.orders.length==0){ %>
+        <h1>Oops!! There's no orders Yet.....</h1>
+    <% } %>
+    </div>
+
+    <script>
+        const pendingButtons=document.querySelectorAll(".pending");
+        const shippedButtons=document.querySelectorAll(".shipped");
+        const deliveredButtons=document.querySelectorAll(".delivered");
+        for(let i=0;i<pendingButtons.length;i++){
+            pendingButtons[i].addEventListener("click",async function(event) {
+                await fetch(`/admin/update`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            id: this.id,
+                            status: "pending"
+                        })
+                    }
+                );
+                const shipped=this.closest(".progress-tracker").querySelector(".shipped");
+                shipped.classList.remove("btn-success");
+                shipped.classList.add("btn-secondary");
+                const delivered=this.closest(".progress-tracker").querySelector(".delivered");
+                delivered.classList.remove("btn-success");
+                delivered.classList.add("btn-secondary");
+
+            });
+        };
+
+        for(let i=0;i<shippedButtons.length;i++){
+            shippedButtons[i].addEventListener("click",async function() {
+                await fetch(`/admin/update`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            id: this.id,
+                            status: "shipped"
+                        })
+                    }
+                );
+                const shipped=this.closest(".progress-tracker").querySelector(".shipped");
+                shipped.classList.add("btn-success");
+                shipped.classList.remove("btn-secondary");
+                const delivered=this.closest(".progress-tracker").querySelector(".delivered");
+                delivered.classList.remove("btn-success");
+                delivered.classList.add("btn-secondary");
+            });
+        };
+
+        for(let i=0;i<deliveredButtons.length;i++){
+            deliveredButtons[i].addEventListener("click",async function() {
+                await fetch(`/admin/update`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            id: this.id,
+                            status: "delivered"
+                        })
+                    }
+                );
+                const shipped=this.closest(".progress-tracker").querySelector(".shipped");
+                shipped.classList.add("btn-success");
+                shipped.classList.remove("btn-secondary");
+                const delivered=this.closest(".progress-tracker").querySelector(".delivered");
+                delivered.classList.add("btn-success");
+                delivered.classList.remove("btn-secondary");
+            });
+            
+        };
+
+    </script>
+<%- include("./Partials/footer.ejs") %>
