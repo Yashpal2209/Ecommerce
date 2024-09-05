@@ -29,39 +29,47 @@ async function comparePassword(plainPassword, hashedPassword) {
 async function createUser(req,res){
     try{
         const sqlconnection =await connectionrequest();
+        if(!sqlconnection){
+            console.log("No connection");
+            return res.render("home", { error: "No connection" });
+        }
         const q=`INSERT INTO users (name,email,password,phone,address) VALUES (?,?,?,?,?);`;
         const hashedPassword=await hashPassword(req.body.password);
+        // if(req.body.fullName.trim()=="" || req.body.email.trim()=="" || req.body.password.trim()=="" || req.body.phoneNumber.trim()=="" || req.body.address.trim()==""){
+        //     return res.render("signup", { error: "Please fill all fields." });
+        // }
         const values=[req.body.fullName, req.body.email, hashedPassword, parseInt(req.body.phoneNumber), req.body.address];    
-        await new Promise(sqlconnection.execute(q,values,async (err, result) => {
-            if (err) {
-                console.error('Error creating user:', err);
-                return res.render("home", { error: err.message });
+        await sqlconnection.promise().query(q,values)
+        .then(async ()=>{
+                console.log("creating user");
+                const verifyToken = crypto.randomBytes(32).toString('hex');
+                const results=await sqlconnection.promise().query(`SELECT * FROM users where email=?`,[req.body.email]);
+                console.log(results[0][0].id);
+                await sqlconnection.promise().execute(`INSERT INTO verifyUsers(userId,token) Values(?,?)`,[results[0][0].id,verifyToken]);
+                console.log("created");
+                const link=`http://localhost:3000/verify/?token=${verifyToken}&id=${results[0][0].id}`;
+                const message = {
+                    from: "yashfatehgarh2017@gmail.com",
+                    to: req.body.email,
+                    subject: "Verify Your Identity",
+                    text: "You are registered Successfully.",
+                    html: `<p>You are registered Successfully. Click the following link to verify your identity:</p><a href="${link}">Verify Identity</a>`
+                };
+                        
+                await transporter.sendMail(message, function(err, info) {
+                    if (err) {
+                        console.log("Error occurred: ", err.message);
+                    } else {
+                        console.log("Email sent: " + info.response);
+                    }
+                });
+                
+                console.log("done");
             }
-            console.log("created");
-            const verifyToken = crypto.randomBytes(32).toString('hex');
-            const results=await sqlconnection.promise().query(`SELECT * FROM users where email=?`,[req.body.email]);
-            console.log(results[0][0].id);
-            await sqlconnection.promise().query(`INSERT INTO verifyUsers(userId,token) Values(?,?)`,[results[0][0].id,verifyToken]);
-            const link=`http://localhost:3000/verify/?token=${verifyToken}&id=${results[0][0].id}`;
-            const message = {
-                from: "yashfatehgarh2017@gmail.com",
-                to: req.body.email,
-                subject: "Verify Your Identity",
-                text: "You are registered Successfully.",
-                html: `<p>You are registered Successfully. Click the following link to verify your identity:</p><a href="${link}">Verify Identity</a>`
-            };
-                    
-            await transporter.sendMail(message, function(err, info) {
-                if (err) {
-                    console.log("Error occurred: ", err.message);
-                } else {
-                    console.log("Email sent: " + info.response);
-                }
-            });
-            
-            console.log("done");
-        })
-        );
+        ).catch((err)=>{
+            console.error('Error creating user:', err);
+            return res.render("home", { error: err.message });
+        });
         sqlconnection.end();
         
     }
@@ -74,7 +82,9 @@ async function createUser(req,res){
         );
     }
 
-    return res.redirect("/")
+    return res.render("home",{
+        message:"Accounted created Successfully .Please Login Now"
+    });
     
 }
 

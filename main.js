@@ -7,12 +7,12 @@ const orderroute=require("./routes/order.js");
 const cartroute=require("./routes/cart.js");
 const adminroute=require("./routes/admin.js");
 const port=3000;
-const mongoose=require("mongoose");
+// const mongoose=require("mongoose");
 const cookieParser=require("cookie-parser");
 const popup = require('node-popup')
 
 const sqlconnection=require("./mysqlconnect.js");
-
+const {checkForAuth}=require("./middleware/checkAuth.js")
 // mongoose.connect("mongodb://localhost:27017/ecommerce")
 // .then(()=>{
 //     console.log("Connected to MongoDB");
@@ -51,8 +51,8 @@ app.use("/admin",adminroute);
 app.use(cookieParser());
 
 app.get('*', (req, res) => {
-    return res.render("error.ejs");
-    return res.status(404).send('Page not found')
+    return res.redirect("/");
+    // return res.status(404).send('Page not found')
 } )
 
 app.listen(port,()=>{

@@ -272,6 +272,7 @@ p {
 
 .navbar-nav .dropdown-menu .dropdown-item {
     color: white;
+    background-color: #0e0d0d;
 }
 
 .navbar-toggler {

@@ -51,27 +51,28 @@
         const shippedButtons=document.querySelectorAll(".shipped");
         const deliveredButtons=document.querySelectorAll(".delivered");
         for(let i=0;i<pendingButtons.length;i++){
-            pendingButtons[i].addEventListener("click",async function(event) {
-                await fetch(`/admin/update`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            id: this.id,
-                            status: "pending"
-                        })
-                    }
-                );
-                const shipped=this.closest(".progress-tracker").querySelector(".shipped");
-                shipped.classList.remove("btn-success");
-                shipped.classList.add("btn-secondary");
-                const delivered=this.closest(".progress-tracker").querySelector(".delivered");
-                delivered.classList.remove("btn-success");
-                delivered.classList.add("btn-secondary");
+            pendingButtons[i].disabled=true;
+            // pendingButtons[i].addEventListener("click",async function(event) {
+            //     await fetch(`/admin/update`,
+            //         {
+            //             method: "POST",
+            //             headers: {
+            //                 "Content-Type": "application/json"
+            //             },
+            //             body: JSON.stringify({
+            //                 id: this.id,
+            //                 status: "pending"
+            //             })
+            //         }
+            //     );
+            //     const shipped=this.closest(".progress-tracker").querySelector(".shipped");
+            //     shipped.classList.remove("btn-success");
+            //     shipped.classList.add("btn-secondary");
+            //     const delivered=this.closest(".progress-tracker").querySelector(".delivered");
+            //     delivered.classList.remove("btn-success");
+            //     delivered.classList.add("btn-secondary");
 
-            });
+            // });
         };
 
         for(let i=0;i<shippedButtons.length;i++){
@@ -91,9 +92,10 @@
                 const shipped=this.closest(".progress-tracker").querySelector(".shipped");
                 shipped.classList.add("btn-success");
                 shipped.classList.remove("btn-secondary");
-                const delivered=this.closest(".progress-tracker").querySelector(".delivered");
-                delivered.classList.remove("btn-success");
-                delivered.classList.add("btn-secondary");
+                shipped.classList.disabled=true;
+                // const delivered=this.closest(".progress-tracker").querySelector(".delivered");
+                // delivered.classList.remove("btn-success");
+                // delivered.classList.add("btn-secondary");
             });
         };
 
@@ -114,9 +116,11 @@
                 const shipped=this.closest(".progress-tracker").querySelector(".shipped");
                 shipped.classList.add("btn-success");
                 shipped.classList.remove("btn-secondary");
+                shipped.classList.disabled=true;
                 const delivered=this.closest(".progress-tracker").querySelector(".delivered");
                 delivered.classList.add("btn-success");
                 delivered.classList.remove("btn-secondary");
+                delivered.classList.disabled=true;
             });
             
         };
