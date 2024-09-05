@@ -13,17 +13,35 @@
       </div>
     <div class="mb-3">
       <label for="exampleInputPassword1" class="form-label">Password</label>
-      <input type="password" class="form-control" id="password" name="password">
+      <input type="password" class="form-control" id="password" name="password" onchange="inputpassword(event)">
+      <label>Password must contains alteat 1 digit</label>
+      <label>Password must contains alteat 1 special character</label>
+      <label>Password must contains only letters and numbers are allowed</label>
+      <label>Password must be at least 8 characters long</label>
     </div>
     <div class="mb-3">
         <label for="mobile" class="form-label">Mobile Number</label>
-        <input type="number" class="form-control" id="phoneNumber" name="phoneNumber">
+        <input type="text" class="form-control" id="phoneNumber" name="phoneNumber">
       </div>
       <div class="mb-3">
         <label for="address" class="form-label">Address</label>
         <input type="text" class="form-control" id="address" name="address">
       </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="submit" class="btn btn-primary" disabled>Submit</button>
 </form>
 </div></div>
+<script>
+  const passwordRegex = /^(?=.*\d)(?=.*[!@#$%^&*])[a-zA-Z0-9]{8,96}$/u;
+  const password=document.getElementById("password");
+
+  function inputpassword(event) {
+    console.log("hii");
+    console.log(event);
+    // if (passwordRegex.test(password.value)) {
+    //   document.querySelector("button").disabled = false;
+    // } else {
+    //   document.querySelector("button").disabled = true;
+    // }
+  }
+</script>
 <%- include("./Partials/footer.ejs") %> 

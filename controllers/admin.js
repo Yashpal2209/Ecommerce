@@ -23,7 +23,7 @@ async function updateForm(req,res){
 }
 
 async function updateDetails(req,res){
-    console.log(req.body);
+    // console.log(req.body);
     const id=req.body.id;
     const name=req.body.name;
     const price=req.body.price;

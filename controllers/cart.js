@@ -55,7 +55,7 @@ async function removeFromCart(req,res){
 
     const sqlconnection=await connectionrequest();
 
-    const [result]=await sqlconnection.promise().query('DELETE FROM carts WHERE product_id=?',[id]);
+    const [result]=await sqlconnection.promise().query('DELETE FROM carts WHERE user_id=? and product_id=?',[req.user.id,id]);
 
     // const result=await Cart.deleteMany({productId:id});
     if(result){
@@ -73,15 +73,15 @@ async function updateCart(req,res){
 }
 
 async function removeAll(req,res){
-    console.log(4)
+    // console.log(4)
     const sqlconnection=await connectionrequest();
-    console.log(0)
+    // console.log(0)
     const [cartproducts]=await sqlconnection.promise().query(`SELECT carts.*,products.*,carts.quantity as cquantity,products.quantity as quantity  FROM carts INNER JOIN products on carts.product_id=products.id WHERE carts.user_id=?`,[req.user.id]);
-    console.log(1)
+    // console.log(1)
     for (const product of cartproducts){
-        console.log(3)
+        // console.log(3)
         const [product1]=await sqlconnection.promise().query(`SELECT * from products where id=? and quantity>=?`,[product.product_id,product.cquantity]);
-        console.log(product1);
+        // console.log(product1);
         if(product1.length>0){
             try {
                 // Begin transaction
