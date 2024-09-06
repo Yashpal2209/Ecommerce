@@ -1,3 +1,5 @@
+//cart collection
+
 const mongoose=require("mongoose");
 const Order=require("./order");
 const Product=require("./product");

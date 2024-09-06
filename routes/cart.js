@@ -10,18 +10,18 @@ const {addToCart,showCart,removeFromCart,updateCart,removeAll,buyOne}=require(".
 router.use(express.json());
 router.use(express.urlencoded({extended:true}));
 
-router.route("")
-.get(checkForAuth,showCart)
-.post(checkForAuth,addToCart)
-.patch(checkForAuth,updateCart);
+router.route("")//route at cart page
+.get(checkForAuth,showCart)//to show cart to a user
+.post(checkForAuth,addToCart)//to add some product to cart
+.patch(checkForAuth,updateCart);//to update cart means increasing the quantity of products
 
-router.route("/remove")
-.post(checkForAuth,removeFromCart);
+router.route("/remove")//to remove 
+.post(checkForAuth,removeFromCart);//remove product from cart
 
-router.route("/buyall")
-.post(checkForAuth,removeAll);
+router.route("/buyall")//to buy all products in cart
+.post(checkForAuth,removeAll);//means to remove all product from cart
 
 router.route("/buyOne")
-.post(checkForAuth,buyOne);
+.post(checkForAuth,buyOne);//to buy only one product
 
 module.exports=router;

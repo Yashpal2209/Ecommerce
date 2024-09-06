@@ -1,5 +1,6 @@
 const connectionrequest=require("../mysqlconnect");
 
+//to show all products of a particular admin
 async function showProducts(req,res){
     const sqlconnection=await connectionrequest();
     const [products] = await sqlconnection.promise().query("SELECT * FROM products where seller_id=?",[req.user.id]);
@@ -9,6 +10,8 @@ async function showProducts(req,res){
     });
 }
 
+
+//update form to update product details
 async function updateForm(req,res){
     const id=req.query.id;
 
@@ -22,6 +25,7 @@ async function updateForm(req,res){
     });
 }
 
+//to update details of a product
 async function updateDetails(req,res){
     // console.log(req.body);
     const id=req.body.id;
@@ -37,6 +41,7 @@ async function updateDetails(req,res){
     res.end();
 }
 
+//to remove product from home page 
 async function deleteProduct(req,res){
     const id=parseInt(req.body.id);
     const avail=req.body.avail;
@@ -50,6 +55,8 @@ async function deleteProduct(req,res){
     res.end();
 }
 
+
+//to show all orders to admin
 async function showAllOrders(req,res){
     const sqlconnection=await connectionrequest();
 
@@ -61,6 +68,7 @@ async function showAllOrders(req,res){
     });
 }
 
+//to update status of order
 async function updateStatus(req,res){
     const id=parseInt(req.body.id);
     const status=req.body.status;

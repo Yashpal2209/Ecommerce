@@ -11,6 +11,8 @@ const {showOrder,createOrder,myOrders}=require("../controllers/order");
 router.use(express.json());
 router.use(express.urlencoded({extended:true}));
 
+
+//to show all orders of a user
 router.route("")
 .get(checkForAuth,myOrders);
 

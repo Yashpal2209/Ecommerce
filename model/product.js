@@ -1,3 +1,5 @@
+//product collection
+
 const mongoose=require("mongoose");
 const User=require("./user");
 const prodSchema=new mongoose.Schema({

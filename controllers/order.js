@@ -4,6 +4,7 @@ const User=require("../model/user");
 const Cart=require("../model/cart");
 const connectionrequest=require("../mysqlconnect");
 
+
 async function showOrder(req,res){
     try{
 
@@ -80,6 +81,7 @@ async function createOrder(req,res){
     }
 }
 
+//to show user's orders
 async function myOrders(req,res){
 
     const sqlconnection=await connectionrequest();

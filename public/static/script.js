@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const modal = document.getElementById("detailsModal");
     const closeModal = document.querySelector(".close");
 
+    //view detail for a product
     document.querySelectorAll(".viewDetails").forEach(button => {
         button.addEventListener("click", function() {
             const card = this.closest(".card");
@@ -48,6 +49,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+    //pagination
     const buttonlist = document.getElementsByClassName("page");
     for (let i = 0; i < buttonlist.length; i++) {
         buttonlist[i].addEventListener("click", function() {
@@ -56,6 +58,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    //add to cart
     const btnlist=document.getElementsByClassName("cart");
     for(let i=0;i<btnlist.length;i++){
         btnlist[i].addEventListener("click",async (event)=>{
@@ -81,13 +84,4 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         })
     };
-
-    // const btnlist=document.getElementsByClassName("cart");
-    // console.log(btnlist);
-    // for(let i=0;i<btnlist.length;i++){
-    //     btnlist[i].addEventListener("click",async (event)=>{
-    //         console.log(event.target);
-    //         window.location.href=`/order?product=${event.target.id}`;
-    //     })
-    // };
 });

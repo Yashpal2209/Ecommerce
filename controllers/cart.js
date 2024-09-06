@@ -3,7 +3,7 @@ const Product=require("../model/product");
 const mongoose=require("mongoose");
 const connectionrequest=require("../mysqlconnect");
 
-
+//to add to cart
 async function addToCart(req,res){
     const id=req.body.id;
 
@@ -20,7 +20,7 @@ async function addToCart(req,res){
     return res.send(JSON.stringify({message:"addded To cart"}));
 }
 
-
+//to show cart to user
 async function showCart(req,res){
 
     const sqlconnection=await connectionrequest();
@@ -50,6 +50,7 @@ async function showCart(req,res){
 
 }
 
+//to remove from cart
 async function removeFromCart(req,res){
     const id=req.body.id;
 
@@ -64,6 +65,7 @@ async function removeFromCart(req,res){
     return res.send(JSON.stringify({message:"Failed to remove from cart"}));
 }
 
+//to update cart quantity
 async function updateCart(req,res){
     const id=req.body.id;
     const quantity=req.body.quantity;
@@ -72,6 +74,7 @@ async function updateCart(req,res){
     res.end();
 }
 
+//to remove all items from cart i.e. buy all
 async function removeAll(req,res){
     // console.log(4)
     const sqlconnection=await connectionrequest();
@@ -124,6 +127,8 @@ async function removeAll(req,res){
     return res.end();
 }
 
+
+//to buy one product from cart
 async function buyOne(req,res){
     const id=Number(req.body.id);
     const quantity=req.body.quantity;

@@ -1,5 +1,7 @@
 const jwt=require("jsonwebtoken");
 const Product=require("../model/product");
+
+// Middleware to check if user is authenticated before accessing protected routes.
 function checkForAuth(req,res,next){
     const token=req.cookies.token;
     if(!token){
@@ -10,7 +12,7 @@ function checkForAuth(req,res,next){
             return res.redirect("/");
         }
         req.user=decodedToken;
-        next();
+        next();//if verified then can proceed
     });
 }
 

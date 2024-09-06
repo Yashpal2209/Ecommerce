@@ -2,20 +2,22 @@ const mysql=require("mysql2");
 
 
 module.exports=async function(){
-    const sqlconnection= await mysql.createConnection({
+    const sqlconnection= await mysql.createConnection({//create connection
         host:'localhost',
         user:'root',
         password:'7984',
         database:'ecommerce'
     });
     
-    // console.log(sqlconnection);
     
+    //connect with the database
     const promise = await new Promise( (resolve,reject)=>(sqlconnection.connect(async(err)=>{
         if(err){
             console.log(err);
         };
         console.log("Connected to MySQL");
+        
+        //creating the users table
         await sqlconnection.execute(`
             CREATE TABLE IF NOT EXISTS users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -29,6 +31,7 @@ module.exports=async function(){
             )
         `);
         
+        //creating the products table
         await sqlconnection.execute(`
             CREATE TABLE IF NOT EXISTS products (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -43,6 +46,7 @@ module.exports=async function(){
             );
         `);
         
+        //creating the carts table
         await sqlconnection.execute(`
             CREATE TABLE IF NOT EXISTS carts (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -53,7 +57,8 @@ module.exports=async function(){
                 FOREIGN KEY (product_id) REFERENCES products(id)
             )
         `)
-        
+
+        //creating the orders table
         await sqlconnection.execute(`
             CREATE TABLE IF NOT EXISTS orders (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -71,6 +76,7 @@ module.exports=async function(){
             );
         `);
 
+        //creating the resetPassword table
         await sqlconnection.execute(`
                 CREATE TABLE IF NOT EXISTS resetPassword (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -80,7 +86,8 @@ module.exports=async function(){
                     FOREIGN KEY (userId) REFERENCES users(id)
                 );
         `)
-
+        
+        //creating the verifyUsers table
         await sqlconnection.execute(`
             CREATE TABLE IF NOT EXISTS verifyUsers(
                 id INT AUTO_INCREMENT PRIMARY KEY,

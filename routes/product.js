@@ -5,12 +5,14 @@ const multer=require("multer");
 const router=express.Router();
 const path=require("path");   
 const {showAllProducts}=require("../controllers/product");
-
 const jwt=require("jsonwebtoken");
 const connectionrequest=require("../mysqlconnect");
+
+
 router.use(cookieParser())
 router.use(express.urlencoded({extended:true}));
 
+//to save file and rename that 
 const storage=multer.diskStorage({
     destination:function(req,file,cb){
         cb(null, path.join(__dirname, "../public/uploads"));
@@ -21,8 +23,10 @@ const storage=multer.diskStorage({
     }
 });
 
+//multer middleware to handle file upload
 const upload=multer({storage:storage});
 
+//home page route
 router.route("/")
 .get(async (req,res)=>{
     const page=parseInt(req.query.page)||1;
@@ -30,12 +34,13 @@ router.route("/")
     const offset=(page-1)*limit;
     try{
 
-        const sqlconnection = await connectionrequest();
+        // const sqlconnection = await connectionrequest();
 
-        const token=req.cookies.token;
+        const token=req.cookies.token;//get token
 
+        //case when user is not verified 
         if (!token) {
-            const {totalItems,products}=await showAllProducts(limit,offset);
+            const {totalItems,products}=await showAllProducts(limit,offset);//all products
             return res.render("home", {
                 result: products,
                 totalItems: totalItems[0].count,
@@ -44,11 +49,11 @@ router.route("/")
                 error: "Please login and sign in first"
             });
         }
-    
+        
         jwt.verify(token, "mysecretkey", async (err, decodedToken) => {
             
             if (err) {
-                const {totalItems,products}=await showAllProducts(limit,offset);
+                const {totalItems,products}=await showAllProducts(limit,offset);//all products
                 return res.render("home", {
                     result: products,
                     totalItems: totalItems[0].count,
@@ -57,7 +62,8 @@ router.route("/")
                     error: "Invalid Login id"
                 });
             }
-            const {totalItems,products}=await showAllProducts(limit,offset,decodedToken.id);
+            //get all products for logged in user
+            const {totalItems,products}=await showAllProducts(limit,offset,decodedToken.id);//without products of this particular user
         
             res.render("home", {
                 user: decodedToken,
@@ -74,20 +80,22 @@ router.route("/")
     
 });
 
+
 router.route("/createProduct")
-.get(checkForAuth,(req,res)=>{
+.get(checkForAuth,(req,res)=>{//form for product creation
     res.render("products",{
         user:req.user,
     });
 })
-.post(upload.single("productImage"),async (req,res)=>{
+.post(upload.single("productImage"),async (req,res)=>{//for getting form data and creating the product
     const token=req.cookies.token;
-    if(!token){
+    if(!token){//if not verified
         return res.render("home",{
             error:"Please login and sign in first"
         });
     }
     let decodedToken1={};
+    //if verified
     try{
         await jwt.verify(token,"mysecretkey",async (err,decodedToken)=>{
             if(err){
@@ -118,7 +126,7 @@ router.route("/createProduct")
 
             sqlconnection.end();
         })
-    }catch(error){
+    }catch(error){//to handle errors
         return res.render("home",{
             user:decodedToken1,
             error:error.message,

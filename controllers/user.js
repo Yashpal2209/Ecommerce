@@ -7,6 +7,7 @@ const crypto=require("crypto")
 const bcrypt=require("bcrypt");
 require('dotenv').config();
 
+//creating transporter for mail sending 
 let transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -15,17 +16,20 @@ let transporter = nodemailer.createTransport({
     }
 });
 
+//generate hashPassword
 async function hashPassword(password) {
     const saltRounds = 10; // You can adjust the salt rounds, higher means more security but slower performance
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     return hashedPassword;
 }
 
+//compare hashPassword
 async function comparePassword(plainPassword, hashedPassword) {
     const isMatch = await bcrypt.compare(plainPassword, hashedPassword);
     return isMatch;
 }
   
+//create user
 async function createUser(req,res){
     try{
         const sqlconnection =await connectionrequest();
@@ -55,7 +59,7 @@ async function createUser(req,res){
                     text: "You are registered Successfully.",
                     html: `<p>You are registered Successfully. Click the following link to verify your identity:</p><a href="${link}">Verify Identity</a>`
                 };
-                        
+                //sending the mail        
                 await transporter.sendMail(message, function(err, info) {
                     if (err) {
                         console.log("Error occurred: ", err.message);
@@ -73,7 +77,7 @@ async function createUser(req,res){
         sqlconnection.end();
         
     }
-    catch(error){
+    catch(error){//case of error
         console.log('Error creating user:', error);
         return res.render("home",
             {
@@ -88,6 +92,7 @@ async function createUser(req,res){
     
 }
 
+//signin user
 async function verifyUser(req,res){
     const sqlconnection =await connectionrequest();
     const q=`SELECT * FROM users WHERE email=?`;
@@ -115,24 +120,28 @@ async function verifyUser(req,res){
         address:results[0].address,
         role:results[0].role,
     }
+
+    //generating the token
     const id1=await jwt.sign(payload,"mysecretkey",{expiresIn:'1h'});
-    res.cookie("token",id1);
+    res.cookie("token",id1);//setting in cookie
     sqlconnection.end();
     return res.redirect("/");
 }
 
+//logout the current user
 async function logout(req,res){
     res.clearCookie("token");
     return res.redirect("/");
 }
 
+//forget password
 async function forgetPasssword(req,res){
     const sqlconnection =await connectionrequest();
     const q=`SELECT * FROM users WHERE email=?`;
     const values=[req.body.email];
 
     await new Promise((resolve,reject)=>{ sqlconnection.query(q,values,async (err, results) => {
-        if(err){
+        if(err){    //email not registered
             reject("Invalid Email");
             return res.render("home",{
                 error:"Invalid email"
@@ -140,7 +149,7 @@ async function forgetPasssword(req,res){
         }
         // console.log(results[0].id);
         // let newPassword=Math.floor(1000 + Math.random() * 9000);
-        const resetToken = crypto.randomBytes(32).toString('hex');
+        const resetToken = crypto.randomBytes(32).toString('hex');//generate reset token
         const [result]=await sqlconnection.promise().query(`SELECT * FROM resetPassword where userId=?`,[results[0].id]);
         
         if(result.length==0){
@@ -169,6 +178,7 @@ async function forgetPasssword(req,res){
             html: `<p>You requested a password reset. Click the following link to reset your password:</p><a href="${resetLink}">Reset Password</a>`
         };
         
+        //sending the mail
         await transporter.sendMail(message, function(err, info) {
             if (err) {
                 console.log("Error occurred: ", err.message);
@@ -182,6 +192,7 @@ async function forgetPasssword(req,res){
     )
 }
 
+//reset Password
 async function resetPassword(req,res){
     const sqlconnection =await connectionrequest();
     const userId=req.body.userId;
@@ -198,39 +209,43 @@ async function resetPassword(req,res){
     res.redirect("/signin");
 };
 
+//reset Password Form when link is clicked from email
 async function showresetform(req,res){
     const token=req.query.token;
     const userId=req.query.id;
+
+    //verifying the token
     const sqlconnection = await connectionrequest();
     const [resetPassword]=await sqlconnection.promise().query(`SELECT * FROM resetPassword WHERE token=? AND userId=?`,[token,userId]);
     
-    if(resetPassword.length==0){
-        console.log("hii");
+    if(resetPassword.length==0){//token is not available either removed or expired
         return res.render("home",{
             error:"PLease sign in or signup first"
         })
     }
 
-    if(Number(resetPassword.expiresAt)<Date.now()){
+
+    if(Number(resetPassword.expiresAt)<Date.now()){//if token has expired
         res.render("home",{
             error:"Please sign first"
         })
     }
 
-    res.render("resetpass",{
+    res.render("resetpass",{//reset password
         userId:userId,
     });
 
 
 }
 
+//verify email when user clicks on the link in the signup email 
 async function verifyEmail(req,res){
     const sqlconnection = await connectionrequest();
     const q=`SELECT * FROM verifyUsers WHERE token=? and userId=?`;
     const values=[req.query.token,req.query.id];
     console.log(values);
     const [results]=await sqlconnection.promise().query(q,values);
-    if(results.length==0){
+    if(results.length==0){//link has been expired
         return res.render("home",{
             error:"Invalid Link"
         });
@@ -238,7 +253,7 @@ async function verifyEmail(req,res){
     await sqlconnection.promise().query(`UPDATE users SET isVerified=true WHERE id=?`,[req.query.id]);
     await sqlconnection.promise().query(`DELETE FROM verifyUsers where userId=?`,[req.query.id]);
     sqlconnection.end();
-    return res.render("home",{
+    return res.render("home",{//verified
         message:"Email verified successfully.You can login now"
     })
  
