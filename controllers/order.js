@@ -86,7 +86,7 @@ async function myOrders(req,res){
 
     const sqlconnection=await connectionrequest();
 
-    const [orders]=await sqlconnection.promise().query(`SELECT orders.*,products.*,orders.quantity as quantity,products.quantity as pquantity FROM orders INNER JOIN products ON orders.product_id=products.id WHERE orders.user_id=?`,[req.user.id]);
+    const [orders]=await sqlconnection.promise().query(`SELECT orders.*,products.*,orders.quantity as quantity,products.quantity as pquantity FROM orders INNER JOIN products ON orders.product_id=products.id WHERE orders.user_id=? ORDER BY orders.createdAt DESC`,[req.user.id]);
     
     // const orders=await Order.find({user:req.user.id}).populate("products.product").sort({date:-1});
     

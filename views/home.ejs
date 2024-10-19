@@ -1,42 +1,89 @@
 <%- include("./Partials/head.ejs") %>
+
 <div class="home">
-<h1> Products</h1>
-<div class="products">
-    <% if (locals.result) { %>
-        <% locals.result.forEach((res)=>{%>
-            <div id="<%= res.id %>" class="card" style="width: 18rem; margin-bottom: 15px;">
-                <img src="<%= res.imageURL %>" class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title"><%= res.name %></h5>
-                    <p class="card-text"><%= res.description%></p>
-                    <p class="card-text">Price: <%= res.price %></p>
-                    <p class="card-text">Quantity: <%= res.quantity %></p>
-                    <button class="btn btn-primary cart" id="<%= res.id %>">Add to Cart</button>
-                    <button class="btn btn-primary viewDetails" data-id="<%= res.id %>">View Details</button>
+    <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+        <!-- Carousel indicators (dots at the bottom) -->
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        </div>
+    
+        <!-- Carousel inner slides (images) -->
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="https://www.shutterstock.com/image-photo/shopping-cart-full-groceries-supermarket-600nw-2159092605.jpg">
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>New Products Launch</h5>
+                    <p>Check out our latest products!</p>
                 </div>
             </div>
-        <% }); %>
-    <% } %>
-</div>
-
-<div id="pagination">
-    <% for (let index = 1; index <= locals.totalPages; index++) { %>
-        <% if (index==locals.currentPage) { %>
-          <button disabled><%= index %></button>
-        <% } else { %>
-            <button class="page" id="<%= index %>"><%= index %></button>
+            <div class="carousel-item">
+                <img src="https://cdn.shopify.com/s/files/1/0070/7032/articles/how_20to_20start_20a_20clothing_20brand.png?v=1727452745" class="d-block w-100" alt="Announcement 2">
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>Best Offers</h5>
+                    <p>Don't miss out on our special deals.</p>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="https://www.shutterstock.com/image-vector/cartoon-athletic-sneakers-sport-shoe-260nw-2203392857.jpg">
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>Big India Sale</h5>
+                    <p>Stay updated with our latest announcements.</p>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Carousel controls (left and right arrows) -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+    <input id="searchInput" name="searchInput" value="" style="float: right;background-color:aqua;"/>
+    <h1>Our Products</h1>
+    <div class="products">
+        <% if (locals.result) { %>
+            <% locals.result.forEach((res)=>{%>
+                <div id="<%= res.id %>" class="card">
+                    <img src="<%= res.imageURL %>" class="card-img-top" alt="<%= res.name %>">
+                    <div class="card-body">
+                        <h5 class="card-title"><%= res.name %></h5>
+                        <p class="card-text"><%= res.description%></p>
+                        <p class="card-text">Price: <%= res.price %></p>
+                        <p class="card-text">Quantity: <%= res.quantity %></p>
+                        <button class="btn btn-primary cart" id="<%= res.id %>">Add to Cart</button>
+                        <button class="btn btn-primary viewDetails" data-id="<%= res.id %>">View Details</button>
+                    </div>
+                </div>
+            <% }); %>
         <% } %>
-    <% } %>
-</div>
-<div id="detailsModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <img id="modal-image" class="modal-img" alt="Product Image">
-        <h5 id="modal-title"></h5>
-        <p id="modal-description"></p>
-        <p id="modal-price"></p>
-        <p id="modal-quantity"></p>
+    </div>
+    
+    <div id="pagination">
+        <% for (let index = 1; index <= locals.totalPages; index++) { %>
+            <% if (index==locals.currentPage) { %>
+                <button disabled><%= index %></button>
+            <% } else { %>
+                <button class="page" id="<%= index %>"><%= index %></button>
+            <% } %>
+        <% } %>
+    </div>
+    
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <img id="modal-image" class="modal-img" alt="Product Image">
+            <h5 id="modal-title"></h5>
+            <p id="modal-description"></p>
+            <p id="modal-price"></p>
+            <p id="modal-quantity"></p>
+        </div>
     </div>
 </div>
-</div>
-<%- include("./Partials/footer.ejs") %> 
+
+<%- include("./Partials/footer.ejs") %>

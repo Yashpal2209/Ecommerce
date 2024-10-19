@@ -6,7 +6,7 @@ const productroute=require("./routes/product.js");
 const orderroute=require("./routes/order.js");
 const cartroute=require("./routes/cart.js");
 const adminroute=require("./routes/admin.js");
-const port=3000;
+const port=4000;
 
 //this code is to connect mongoose
 // const mongoose=require("mongoose");

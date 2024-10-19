@@ -4,7 +4,7 @@ const cookieParser=require("cookie-parser");
 const multer=require("multer");
 const router=express.Router();
 const path=require("path");   
-const {showAllProducts}=require("../controllers/product");
+const {showAllProducts,showAllUnAvailProducts,showSearchedProducts}=require("../controllers/product");
 const jwt=require("jsonwebtoken");
 const connectionrequest=require("../mysqlconnect");
 
@@ -30,7 +30,8 @@ const upload=multer({storage:storage});
 router.route("/")
 .get(async (req,res)=>{
     const page=parseInt(req.query.page)||1;
-    const limit=parseInt(req.query.limit)||4;
+    const limit=3;
+    const searchInput=req.query?.searchedText||"";
     const offset=(page-1)*limit;
     try{
 
@@ -40,7 +41,7 @@ router.route("/")
 
         //case when user is not verified 
         if (!token) {
-            const {totalItems,products}=await showAllProducts(limit,offset);//all products
+            const {totalItems,products}=await showSearchedProducts(searchInput,limit,offset);//all products
             return res.render("home", {
                 result: products,
                 totalItems: totalItems[0].count,
@@ -53,7 +54,7 @@ router.route("/")
         jwt.verify(token, "mysecretkey", async (err, decodedToken) => {
             
             if (err) {
-                const {totalItems,products}=await showAllProducts(limit,offset);//all products
+                const {totalItems,products}=await showSearchedProducts(searchInput,limit,offset);//all products
                 return res.render("home", {
                     result: products,
                     totalItems: totalItems[0].count,
@@ -63,7 +64,7 @@ router.route("/")
                 });
             }
             //get all products for logged in user
-            const {totalItems,products}=await showAllProducts(limit,offset,decodedToken.id);//without products of this particular user
+            const {totalItems,products}=await showSearchedProducts(searchInput,limit,offset,decodedToken.id);//without products of this particular user
         
             res.render("home", {
                 user: decodedToken,
@@ -78,7 +79,114 @@ router.route("/")
         res.status(500).json({message:error.message});
     }
     
+})
+.post(async(req,res)=>{
+    const page=parseInt(req.query.page)||1;
+    const limit=parseInt(req.query.limit)||4;
+    const offset=(page-1)*limit;
+    try{
+
+        // const sqlconnection = await connectionrequest();
+
+        const token=req.cookies.token;//get token
+
+        //case when user is not verified 
+        if (!token) {
+            const {totalItems,products}=await showAllUnAvailProducts(limit,offset);//all products
+            return res.render("home", {
+                result: products,
+                totalItems: totalItems[0].count,
+                totalPages: Math.ceil(totalItems[0].count / limit),
+                currentPage: page,
+                filtered:true,
+                error: "Please login and sign in first"
+            });
+        }
+        
+        jwt.verify(token, "mysecretkey", async (err, decodedToken) => {
+            
+            if (err) {
+                const {totalItems,products}=await showAllUnAvailProducts(limit,offset);//all products
+                return res.render("home", {
+                    result: products,
+                    totalItems: totalItems[0].count,
+                    totalPages: Math.ceil(totalItems[0].count / limit),
+                    currentPage: page,
+                    filtered:true,
+                    error: "Invalid Login id"
+                });
+            }
+            //get all products for logged in user
+            const {totalItems,products}=await showAllUnAvailProducts(limit,offset,decodedToken.id);//without products of this particular user
+        
+            res.render("home", {
+                user: decodedToken,
+                result: products,
+                totalItems: totalItems[0].count,
+                totalPages: Math.ceil(totalItems[0].count / limit),
+                currentPage: page,
+                filtered:true,
+            });
+        });
+    
+    }catch(error){
+        res.status(500).json({message:error.message});
+    }
 });
+
+// router.route("/search")
+// .post(async (req,res)=>{
+//     const text=req.body.search;
+//     const page=parseInt(req.query.page)||1;
+//     const limit=parseInt(req.query.limit)||2;
+//     const offset=(page-1)*limit;
+//     try{
+
+//         // const sqlconnection = await connectionrequest();
+
+//         const token=req.cookies.token;//get token
+
+//         //case when user is not verified 
+//         if (!token) {
+//             const {totalItems,products}=await showSearchedProducts(text,limit,offset);//all products
+//             return res.render("home", {
+//                 result: products,
+//                 totalItems: totalItems[0].count,
+//                 totalPages: Math.ceil(totalItems[0].count / limit),
+//                 currentPage: page,
+//                 error: "Please login and sign in first"
+//             });
+//         }
+        
+//         jwt.verify(token, "mysecretkey", async (err, decodedToken) => {
+            
+//             if (err) {
+//                 const {totalItems,products}=await showSearchedProducts(text,limit,offset);//all products
+//                 return res.render("home", {
+//                     result: products,
+//                     totalItems: totalItems[0].count,
+//                     totalPages: Math.ceil(totalItems[0].count / limit),
+//                     currentPage: page,
+//                     error: "Invalid Login id"
+//                 });
+//             }
+//             //get all products for logged in user
+//             const {totalItems,products}=await showSearchedProducts(text,limit,offset,decodedToken.id);//without products of this particular user
+        
+//             res.render("home", {
+//                 user: decodedToken,
+//                 result: products,
+//                 totalItems: totalItems[0].count,
+//                 totalPages: Math.ceil(totalItems[0].count / limit),
+//                 currentPage: page,
+//             });
+//         });
+    
+//     }catch(error){
+//         res.status(500).json({message:error.message});
+//     }
+    
+// });
 
 
 router.route("/createProduct")
@@ -134,5 +242,7 @@ router.route("/createProduct")
     }
     return res.redirect("/");
 });
+
+
 
 module.exports=router;

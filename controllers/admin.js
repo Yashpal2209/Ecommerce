@@ -60,7 +60,7 @@ async function deleteProduct(req,res){
 async function showAllOrders(req,res){
     const sqlconnection=await connectionrequest();
 
-    const [orders]=await sqlconnection.promise().query(`SELECT orders.*,products.*,users.*,orders.id as order_id ,users.name as buyyer,orders.quantity as quantity,products.quantity as pquantity,products.name as product_name FROM orders INNER JOIN products ON orders.product_id=products.id INNER JOIN users on orders.user_id=users.id`);
+    const [orders]=await sqlconnection.promise().query(`SELECT orders.*,products.*,users.*,orders.id as order_id ,users.name as buyyer,orders.quantity as quantity,products.quantity as pquantity,products.name as product_name FROM orders INNER JOIN products ON orders.product_id=products.id INNER JOIN users on orders.user_id=users.id ORDER BY orders.createdAt DESC`);
    
     res.render("allOrders",{
         user:req.user,
