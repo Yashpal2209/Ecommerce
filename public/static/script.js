@@ -155,15 +155,16 @@ document.addEventListener("DOMContentLoaded", function() {
              window.location.href = `/?page=${1}&searchedText=${text.value}`;
          }
     });
-    text.value=window.location.search.toString().split("&")[1].split("=")[1];
+    const param=window.location.search;
+    text.value=param.toString()?param.toString().split("&")[1].split("=")[1]:"";
     const buttonlist = document.getElementsByClassName("page");
     for (let i = 0; i < buttonlist.length; i++) {
         buttonlist[i].addEventListener("click", function() {
-            console.log(text.value);
-            const page = this.id; // get the page number from the button's id
+            console.log(125,text.value);
+            const page = this.id; //, get the page number from the button's id
             const params=window.location.search;
-            console.log(params.toString().split("&")[1].split("=")[1]);
-            window.location.href = `/?page=${page}&searchedText=${params.toString().split("&")[1].split("=")[1]}`;
+            console.log(params?.toString()?params.toString().split("&")[1].split("=")[1]:"");
+            window.location.href = `/?page=${page}&searchedText=${params?.toString()?params.toString().split("&")[1].split("=")[1]:""}`;
         });
     }
 

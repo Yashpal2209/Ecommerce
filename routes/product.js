@@ -34,9 +34,6 @@ router.route("/")
     const searchInput=req.query?.searchedText||"";
     const offset=(page-1)*limit;
     try{
-
-        // const sqlconnection = await connectionrequest();
-
         const token=req.cookies.token;//get token
 
         //case when user is not verified 
